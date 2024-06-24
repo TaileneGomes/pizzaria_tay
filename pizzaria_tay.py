@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import datetime
-import mysql.connector
+import datetime # Importa o módulo datetime para trabalhar com datas
+import mysql.connector # Importa o módulo mysql.connector para conectar ao Mysql
 
 # Conectar ao MySQL
 try:
@@ -12,7 +12,7 @@ try:
         database='pizzaria_tay'
     )
 
-    # Verificar se o banco de dados existe
+    # Verifica se o banco de dados existe
     cursor = tgs.cursor()
     cursor.execute('SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = "pizzaria_tay";')
     num_results = cursor.fetchone()[0]
@@ -237,12 +237,15 @@ for j, borda in enumerate(bordas):
     checkbutton = tk.Checkbutton(frame_pedidos, text=borda, variable=var_bordas[borda], bg="#99ccff")
     checkbutton.grid(row=9 + j, column=0, columnspan=2, pady=2, padx=20, sticky='w')
 
+clientes = [cliente[1] for cliente in buscar_clientes()]
+if clientes:
+    var_cliente = tk.StringVar(value=clientes[0])
+    optionmenu_cliente = tk.OptionMenu(frame_pedidos, var_cliente, *clientes)
+else:
+    var_cliente = tk.StringVar()
+    optionmenu_cliente = tk.OptionMenu(frame_pedidos, var_cliente, "")
 label_cliente = tk.Label(frame_pedidos, text="Selecione o Cliente:", bg="#99ccff")
 label_cliente.grid(row=12, column=0, pady=5, padx=20, sticky='e')
-
-clientes = [cliente[1] for cliente in buscar_clientes()]
-var_cliente = tk.StringVar(value=clientes[0] if clientes else "")
-optionmenu_cliente = tk.OptionMenu(frame_pedidos, var_cliente, *clientes)
 optionmenu_cliente.grid(row=12, column=1, pady=5, padx=20, sticky='w')
 
 button_pedir = tk.Button(frame_pedidos, text="Pedir", command=lambda: [calcular_total(), confirmar_pedido()])
@@ -296,30 +299,6 @@ treeview.grid(row=6, column=0, columnspan=2, pady=10, padx=20)
 
 # Atualizar a lista de clientes na inicialização
 atualizar_lista_clientes()
-
-# Função para debug - exibe dados antes de inserir no banco
-def debug_inserir_pedido():
-    try:
-        quantidade = int(entry_quantidade.get())
-        tamanho = var_tamanho.get()
-        total = precos[tamanho] * quantidade
-        
-        for ingrediente, var in var_ingredientes.items():
-            if var.get():
-                total += precos_ingredientes[ingrediente] * quantidade
-
-        for borda, var in var_bordas.items():
-            if var.get():
-                total += precos_bordas[borda] * quantidade
-
-        print(f"Quantidade: {quantidade}, Tamanho: {tamanho}, Total: {total}")
-
-    except ValueError as e:
-        messagebox.showerror("Erro", str(e))
-
-# Botão de debug - apenas para fins de teste
-button_debug = tk.Button(frame_pedidos, text="Debug Inserir Pedido", command=debug_inserir_pedido)
-button_debug.grid(row=15, column=0, columnspan=2, pady=10, padx=20)
 
 # Iniciar a interface gráfica
 root.mainloop()
